@@ -23,18 +23,13 @@ fn check_digit() {
     io::stdin().read_line(&mut text).expect("error");
     let text = text.trim();
 
-    let mut odd_length_checksum = 0;
-    let mut even_length_checksum = 0;
-    for (i, c) in text.chars().enumerate() {
-        let num = c.to_digit(10).unwrap();
-        if i % 2 == 0 {
-            odd_length_checksum += double_digit_number(num);
-            even_length_checksum += num;
-        } else {
-            odd_length_checksum += num;
-            even_length_checksum += double_digit_number(num);
-        }
-    }
+    let (even, odd): (Vec<_>, Vec<_>) = text
+        .chars()
+        .map(|c| c.to_digit(10).unwrap())
+        .enumerate()
+        .partition(|(i, _)| i % 2 == 0);
+    let odd_length_checksum = sum_double(&even) + sum_single(&odd);
+    let even_length_checksum = sum_single(&even) + sum_double(&odd);
 
     let checksum = if text.chars().count() % 2 == 0 {
         even_length_checksum
@@ -48,6 +43,16 @@ fn check_digit() {
     } else {
         println!("Checksum is not divisilbe by 10. Invalid.");
     }
+}
+
+fn sum_single(nums: &[(usize, u32)]) -> u32 {
+    nums.iter().map(|(_i, n)| n).sum::<u32>()
+}
+
+fn sum_double(nums: &[(usize, u32)]) -> u32 {
+    nums.iter()
+        .map(|(_i, n)| double_digit_number(*n))
+        .sum::<u32>()
 }
 
 fn double_digit_number(num: u32) -> u32 {
