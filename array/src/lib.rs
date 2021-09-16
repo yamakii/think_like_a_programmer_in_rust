@@ -3,13 +3,13 @@
 use std::{cmp::Ordering, collections::HashMap};
 
 fn find_mode(answers: &[u32]) -> Option<u32> {
-    let mut score = [0; 10];
-    for answer in answers {
-        if score.len() < *answer as usize {
-            return None;
-        }
-        score[(*answer - 1) as usize] += 1;
+    if answers.iter().any(|&x| x > 10) {
+        return None;
     }
+    let score = answers.iter().fold([0; 10], |mut carry, &x| {
+        carry[x as usize - 1] += 1;
+        carry
+    });
     score
         .iter()
         .enumerate()
