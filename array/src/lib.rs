@@ -3,33 +3,37 @@
 use std::{cmp::Ordering, collections::HashMap};
 
 fn find_mode(answers: &[u32]) -> Option<u32> {
-    let mut score = [0; 10];
-    for answer in answers {
-        if *answer > score.len() as u32 {
-            return None;
+    let score = answers.iter().try_fold([9; 10], |mut acc, &a| {
+        if a > acc.len() as u32 {
+            None
+        } else {
+            acc[a as usize - 1] += 1;
+            Some(acc)
         }
-        score[*answer as usize - 1] += 1;
-    }
-    score
-        .iter()
-        .enumerate()
-        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-        .map(|(index, _)| index as u32 + 1)
+    });
+    score.and_then(|x| {
+        x.iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+            .map(|(index, _)| index as u32 + 1)
+    })
 }
 
 fn find_mode_by_hash_map(answers: &[u32]) -> Option<u32> {
-    let mut survay = HashMap::new();
-    for answer in answers {
-        if answer > &10 {
-            return None;
+    let survay = answers.iter().try_fold(HashMap::new(), |mut acc, &a| {
+        if a > 10 {
+            None
+        } else {
+            let counter = acc.entry(a).or_insert(0);
+            *counter += 1;
+            Some(acc)
         }
-        let counter = survay.entry(*answer).or_insert(0);
-        *counter += 1;
-    }
-    survay
-        .iter()
-        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-        .map(|(&answer, _)| answer)
+    });
+    survay.and_then(|x| {
+        x.iter()
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+            .map(|(&answer, _)| answer)
+    })
 }
 
 #[cfg(test)]
