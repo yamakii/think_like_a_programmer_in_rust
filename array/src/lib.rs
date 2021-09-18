@@ -3,13 +3,13 @@
 use std::{cmp::Ordering, collections::HashMap};
 
 fn find_mode(answers: &[u32]) -> Option<u32> {
-    if answers.iter().any(|&x| x > 10) {
-        return None;
+    let mut score = [0; 10];
+    for answer in answers {
+        if *answer > score.len() as u32 {
+            return None;
+        }
+        score[*answer as usize - 1] += 1;
     }
-    let score = answers.iter().fold([0; 10], |mut carry, &x| {
-        carry[x as usize - 1] += 1;
-        carry
-    });
     score
         .iter()
         .enumerate()
@@ -18,21 +18,18 @@ fn find_mode(answers: &[u32]) -> Option<u32> {
 }
 
 fn find_mode_by_hash_map(answers: &[u32]) -> Option<u32> {
-    let mut survay: HashMap<&u32, u32> = HashMap::new();
+    let mut survay = HashMap::new();
     for answer in answers {
-        if *answer > 10 {
+        if answer > &10 {
             return None;
         }
-        if let Some(a) = survay.get_mut(answer) {
-            *a += 1;
-        } else {
-            survay.insert(answer, 1);
-        }
+        let counter = survay.entry(*answer).or_insert(0);
+        *counter += 1;
     }
     survay
         .iter()
         .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-        .map(|(answer, _)| **answer)
+        .map(|(&answer, _)| answer)
 }
 
 #[cfg(test)]
@@ -41,7 +38,7 @@ mod tests {
     #[test]
     fn test_find_mode() {
         assert_eq!(Some(10), find_mode(&[1, 10, 10, 1, 10]));
-        assert_eq!(None, find_mode(&[11]));
+        assert_eq!(None, find_mode(&[11, 10]));
     }
     #[test]
     fn test_find_mode_by_hash_map() {
