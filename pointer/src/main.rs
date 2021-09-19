@@ -70,7 +70,7 @@ mod array_string {
     }
 }
 
-mod linked_list {
+mod linked_list_generics {
     struct Node<T> {
         elm: T,
         next: Link<T>,
@@ -114,7 +114,7 @@ mod linked_list {
     }
 }
 
-mod linked_list1 {
+mod linked_list {
     type StudentLink = Option<Box<StudentNode>>;
     struct StudentNode {
         number: u32,
@@ -132,6 +132,25 @@ mod linked_list1 {
             };
             *student_collection = Some(head);
         }
+    }
+
+    fn average_record(student_collection: &StudentCollection) -> f64 {
+        let mut count = 0;
+        let mut sum = 0_f64;
+        let mut next;
+        if let Some(node) = student_collection {
+            sum += node.grade as f64;
+            count += 1;
+            next = node.next.as_ref();
+        } else {
+            return 0_f64;
+        };
+        while let Some(node) = next {
+            sum += node.grade as f64;
+            count += 1;
+            next = node.next.as_ref();
+        }
+        sum / count as f64
     }
 
     #[cfg(test)]
@@ -179,6 +198,14 @@ mod linked_list1 {
 
             let node = student_collection.unwrap();
             assert_eq!(node.number, 1274);
+        }
+
+        #[test]
+        fn test_average_record() {
+            let student_collection = make_data();
+            let avg = average_record(&student_collection);
+
+            println!("{}", avg);
         }
     }
 }
