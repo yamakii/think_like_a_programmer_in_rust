@@ -69,3 +69,116 @@ mod array_string {
         }
     }
 }
+
+mod linked_list {
+    struct Node<T> {
+        elm: T,
+        next: Link<T>,
+    }
+    type Link<T> = Option<Box<Node<T>>>;
+    struct Student {
+        number: u32,
+        grade: u32,
+    }
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        #[test]
+        fn test_sample() {
+            let mut node1 = Node {
+                elm: Student {
+                    number: 1001,
+                    grade: 78,
+                },
+                next: None,
+            };
+            let mut node2 = Node {
+                elm: Student {
+                    number: 1012,
+                    grade: 93,
+                },
+                next: None,
+            };
+            let node3 = Node {
+                elm: Student {
+                    number: 1078,
+                    grade: 85,
+                },
+                next: None,
+            };
+            node2.next = Some(Box::new(node3));
+            node1.next = Some(Box::new(node2));
+            let student_collection = Some(Box::new(node1));
+            print!("{:?}", student_collection.unwrap().elm.number);
+        }
+    }
+}
+
+mod linked_list1 {
+    type StudentLink = Option<Box<StudentNode>>;
+    struct StudentNode {
+        number: u32,
+        grade: u32,
+        next: StudentLink,
+    }
+    type StudentCollection = Option<StudentNode>;
+
+    fn add_record(student_collection: &mut StudentCollection, number: u32, grade: u32) {
+        if let Some(current) = student_collection.take() {
+            let head = StudentNode {
+                number,
+                grade,
+                next: Some(Box::new(current)),
+            };
+            *student_collection = Some(head);
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        fn make_data() -> StudentCollection {
+            let mut node1 = StudentNode {
+                number: 1001,
+                grade: 78,
+                next: None,
+            };
+            let mut node2 = StudentNode {
+                number: 1012,
+                grade: 93,
+                next: None,
+            };
+            let node3 = StudentNode {
+                number: 1078,
+                grade: 85,
+                next: None,
+            };
+            node2.next = Some(Box::new(node3));
+            node1.next = Some(Box::new(node2));
+            Some(node1)
+        }
+
+        #[test]
+        fn test_sample() {
+            let student_collection = make_data();
+
+            let node = student_collection.unwrap();
+            assert_eq!(node.number, 1001);
+            let node = node.next.unwrap();
+            assert_eq!(node.number, 1012);
+            let node = node.next.unwrap();
+            assert_eq!(node.number, 1078);
+            let node = node.next;
+            assert!(node.is_none());
+        }
+
+        #[test]
+        fn test_add_record() {
+            let mut student_collection = make_data();
+            add_record(&mut student_collection, 1274, 91);
+
+            let node = student_collection.unwrap();
+            assert_eq!(node.number, 1274);
+        }
+    }
+}
