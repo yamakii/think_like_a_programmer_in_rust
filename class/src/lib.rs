@@ -209,10 +209,10 @@ mod student_list {
             let record2 = StudentRecord::new(75, 1034, "Yuko".to_string()).unwrap();
             let record3 = StudentRecord::new(82, 1045, "Keita".to_string()).unwrap();
             let record4 = StudentRecord::new(82, 1056, "Naoto".to_string()).unwrap();
-            sut.add_record(record1.clone());
-            sut.add_record(record2.clone());
-            sut.add_record(record3.clone());
-            sut.add_record(record4.clone());
+            sut.add_record(record1);
+            sut.add_record(record2);
+            sut.add_record(record3);
+            sut.add_record(record4);
 
             sut.remove_record(&Number::new(1045));
             assert_eq!(sut.record_with_number(&Number::new(1045)), None);
