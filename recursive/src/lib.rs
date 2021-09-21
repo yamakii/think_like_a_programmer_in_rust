@@ -80,7 +80,8 @@ mod linked_list {
         }
     }
 }
-mod binary_tree {
+
+mod tree {
     struct TreeNode {
         data: i32,
         left: Link,
@@ -129,6 +130,73 @@ mod binary_tree {
             };
             let sut = Some(Box::new(node4));
             assert_eq!(max(&sut), Some(3));
+        }
+    }
+}
+
+mod binary_tree {
+    struct BinaryTree {
+        root: Link,
+    }
+    struct TreeNode {
+        data: i32,
+        left: Link,
+        right: Link,
+    }
+    type Link = Option<Box<TreeNode>>;
+
+    impl BinaryTree {
+        pub fn leaf_count(&self) -> Option<i32> {
+            Self::inner_leaf_count(&self.root)
+        }
+
+        fn inner_leaf_count(link: &Link) -> Option<i32> {
+            if let Some(node) = link {
+                let count = match (
+                    Self::inner_leaf_count(&node.left),
+                    Self::inner_leaf_count(&node.right),
+                ) {
+                    (None, None) => 1,
+                    (Some(left), None) => left,
+                    (None, Some(right)) => right,
+                    (Some(left), Some(right)) => left + right,
+                };
+                Some(count)
+            } else {
+                None
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        #[test]
+        fn test_leaf_count() {
+            let node1 = TreeNode {
+                data: 1,
+                left: None,
+                right: None,
+            };
+            let node2 = TreeNode {
+                data: 2,
+                left: Some(Box::new(node1)),
+                right: None,
+            };
+            let node3 = TreeNode {
+                data: 3,
+                left: None,
+                right: None,
+            };
+            let node4 = TreeNode {
+                data: 0,
+                left: Some(Box::new(node3)),
+                right: Some(Box::new(node2)),
+            };
+            let sut = BinaryTree {
+                root: Some(Box::new(node4)),
+            };
+            assert_eq!(sut.leaf_count(), Some(2));
         }
     }
 }
