@@ -80,3 +80,55 @@ mod linked_list {
         }
     }
 }
+mod binary_tree {
+    struct TreeNode {
+        data: i32,
+        left: Link,
+        right: Link,
+    }
+    type Link = Option<Box<TreeNode>>;
+
+    fn max(link: &Link) -> Option<i32> {
+        if let Some(node) = link {
+            let max_data = match (max(&node.left), max(&node.right)) {
+                (None, None) => node.data,
+                (Some(left), None) => std::cmp::max(left, node.data),
+                (None, Some(right)) => std::cmp::max(right, node.data),
+                (Some(left), Some(right)) => std::cmp::max(std::cmp::max(left, right), node.data),
+            };
+            Some(max_data)
+        } else {
+            None
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        #[test]
+        fn test_sum_minus() {
+            let node1 = TreeNode {
+                data: 1,
+                left: None,
+                right: None,
+            };
+            let node2 = TreeNode {
+                data: 2,
+                left: Some(Box::new(node1)),
+                right: None,
+            };
+            let node3 = TreeNode {
+                data: 3,
+                left: None,
+                right: None,
+            };
+            let node4 = TreeNode {
+                data: 0,
+                left: Some(Box::new(node3)),
+                right: Some(Box::new(node2)),
+            };
+            let sut = Some(Box::new(node4));
+            assert_eq!(max(&sut), Some(3));
+        }
+    }
+}
