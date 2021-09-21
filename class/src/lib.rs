@@ -122,6 +122,7 @@ mod student_list {
             };
             self.0 = Some(Box::new(head));
         }
+
         fn record_with_number(&self, number: &Number<StudentRecord>) -> Option<&StudentRecord> {
             let mut current = &self.0;
             while let Some(node) = current {
@@ -134,24 +135,20 @@ mod student_list {
         }
 
         fn remove_record(&mut self, number: &Number<StudentRecord>) {
-            let mut next_node = &mut self.0;
-            let mut found = false;
-            while !found {
-                *next_node = if let Some(mut current) = next_node.take() {
-                    if &current.student_data.student_id == number {
-                        found = true;
-                        // 生徒番号が一致する場合は自身のnextを削除して、nextの指すオブジェクトに入れ替える
-                        current.next.take()
-                    } else {
-                        Some(current)
-                    }
+            let mut target = &mut self.0;
+            // 各要素を変更する可能性があるので、takeで取り出し、変更可能にする
+            while let Some(mut node) = target.take() {
+                if &node.student_data.student_id == number {
+                    // 生徒番号が一致する場合は自身のnextを削除して、nextの指すオブジェクトに入れ替える
+                    *target = node.next.take();
+                    break;
                 } else {
-                    found = true;
-                    None
+                    // 一致しない場合は変更せずに戻す
+                    *target = Some(node);
                 };
                 // 走査対象を次へ
-                if let Some(node) = next_node {
-                    next_node = &mut node.next;
+                if let Some(node) = target {
+                    target = &mut node.next;
                 }
             }
         }
