@@ -34,7 +34,6 @@ mod array {
 }
 
 mod linked_list {
-    struct LinkedList(Link);
     struct ListNode {
         data: i32,
         next: Link,
@@ -75,9 +74,9 @@ mod linked_list {
                 data: 2,
                 next: Some(Box::new(node3)),
             };
-            let sut = LinkedList(Some(Box::new(node4)));
+            let sut = Some(Box::new(node4));
 
-            assert_eq!(count_minus(&sut.0), 2);
+            assert_eq!(count_minus(&sut), 2);
         }
     }
 }
