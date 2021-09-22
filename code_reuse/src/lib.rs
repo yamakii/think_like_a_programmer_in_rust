@@ -159,24 +159,24 @@ mod student_list {
             self.policy = policy;
         }
 
-        fn first_student(&self) -> Option<StudentRecord> {
-            self.search_first_student(&self.head)
-        }
-
-        fn search_first_student(&self, link: &StudentLink) -> Option<StudentRecord> {
-            if let Some(node) = link {
-                if let Some(next_data) = self.search_first_student(&node.next) {
+        fn first_student(&self) -> Option<&StudentRecord> {
+            if let Some(head_node) = &self.head {
+                let mut first_node = head_node;
+                let mut current = Some(head_node);
+                while let Some(node) = current {
                     if self
                         .policy
-                        .higher_priority_than(&node.student_data, &next_data)
+                        .higher_priority_than(&node.student_data, &first_node.student_data)
                     {
-                        Some(node.student_data.clone())
-                    } else {
-                        Some(next_data)
+                        first_node = node;
                     }
-                } else {
-                    Some(node.student_data.clone())
+                    current = if let Some(next) = &node.next {
+                        Some(next)
+                    } else {
+                        None
+                    };
                 }
+                Some(&first_node.student_data)
             } else {
                 None
             }
@@ -204,7 +204,7 @@ mod student_list {
             Self { current: initial }
         }
 
-        fn next(&mut self) -> Option<&StudentRecord> {
+        fn advance(&mut self) {
             if let Some(node) = self.current {
                 self.current = if let Some(next_node) = &node.next {
                     Some(next_node)
@@ -212,11 +212,6 @@ mod student_list {
                     None
                 };
             }
-            self.student()
-        }
-
-        fn past_end(&self) -> bool {
-            self.current == None
         }
 
         fn student(&self) -> Option<&StudentRecord> {
@@ -303,11 +298,11 @@ mod student_list {
             sut.add_record(record4.clone());
 
             sut.set_first_student_policy(FirstStudentPolicy::HierGrade);
-            assert_eq!(sut.first_student(), Some(record3));
+            assert_eq!(sut.first_student(), Some(&record3));
             sut.set_first_student_policy(FirstStudentPolicy::LowerStudentNumber);
-            assert_eq!(sut.first_student(), Some(record4));
+            assert_eq!(sut.first_student(), Some(&record4));
             sut.set_first_student_policy(FirstStudentPolicy::NameComesFirst);
-            assert_eq!(sut.first_student(), Some(record1));
+            assert_eq!(sut.first_student(), Some(&record1));
         }
 
         #[test]
@@ -324,8 +319,9 @@ mod student_list {
 
             let mut total = 0;
             let mut iter = sut.first_item_iterator();
-            while let Some(node) = iter.next() {
+            while let Some(node) = iter.student() {
                 total += node.grade.0;
+                iter.advance();
             }
 
             assert_eq!(total, 301);
