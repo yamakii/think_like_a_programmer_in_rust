@@ -181,6 +181,51 @@ mod student_list {
                 None
             }
         }
+
+        fn first_item_iterator(&self) -> StudentCollectionIterator {
+            let initial = if let Some(node) = &self.head {
+                Some(node)
+            } else {
+                None
+            };
+            StudentCollectionIterator::new(initial)
+        }
+    }
+
+    #[derive(Debug, Default)]
+    struct StudentCollectionIterator<'a> {
+        #[allow(clippy::borrowed_box)]
+        current: Option<&'a Box<StudentNode>>,
+    }
+
+    impl<'a> StudentCollectionIterator<'a> {
+        #[allow(clippy::borrowed_box)]
+        fn new(initial: Option<&'a Box<StudentNode>>) -> Self {
+            Self { current: initial }
+        }
+
+        fn next(&mut self) -> Option<&StudentRecord> {
+            if let Some(node) = self.current {
+                self.current = if let Some(next_node) = &node.next {
+                    Some(next_node)
+                } else {
+                    None
+                };
+            }
+            self.student()
+        }
+
+        fn past_end(&self) -> bool {
+            self.current == None
+        }
+
+        fn student(&self) -> Option<&StudentRecord> {
+            if let Some(node) = &self.current {
+                Some(&node.student_data)
+            } else {
+                None
+            }
+        }
     }
 
     #[cfg(test)]
@@ -263,6 +308,27 @@ mod student_list {
             assert_eq!(sut.first_student(), Some(record4));
             sut.set_first_student_policy(FirstStudentPolicy::NameComesFirst);
             assert_eq!(sut.first_student(), Some(record1));
+        }
+
+        #[test]
+        fn test_iterator() {
+            let mut sut = StudentCollection::default();
+            let record1 = StudentRecord::new(63, 1023, "Hiroshi".to_string()).unwrap();
+            let record2 = StudentRecord::new(75, 1034, "Yuko".to_string()).unwrap();
+            let record3 = StudentRecord::new(82, 1045, "Keita".to_string()).unwrap();
+            let record4 = StudentRecord::new(81, 1056, "Naoto".to_string()).unwrap();
+            sut.add_record(record1);
+            sut.add_record(record2);
+            sut.add_record(record3);
+            sut.add_record(record4);
+
+            let mut total = 0;
+            let mut iter = sut.first_item_iterator();
+            while let Some(node) = iter.next() {
+                total += node.grade.0;
+            }
+
+            assert_eq!(total, 301);
         }
     }
 }
