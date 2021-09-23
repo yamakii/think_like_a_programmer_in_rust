@@ -49,4 +49,23 @@ mod tests {
         assert_eq!(Some(10), find_mode_by_hash_map(&[1, 10, 10, 1, 10]));
         assert_eq!(None, find_mode_by_hash_map(&[11]));
     }
+    #[test]
+    fn test_sort_student_struct() {
+        struct Student {
+            id: u32,
+            grade: u32,
+        }
+
+        let mut students = [
+            Student { id: 1, grade: 90 },
+            Student { id: 2, grade: 60 },
+            Student { id: 3, grade: 70 },
+        ];
+
+        students.sort_by(|a, b| a.id.cmp(&b.id));
+        assert_eq!(&students[0].grade, &90);
+
+        students.sort_by(|a, b| a.grade.cmp(&b.grade));
+        assert_eq!(&students[0].id, &2);
+    }
 }
