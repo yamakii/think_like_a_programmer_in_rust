@@ -73,8 +73,32 @@ mod mode {
 }
 
 mod sort {
+    fn is_sorted(array: &[u32]) -> bool {
+        let last = array[array.len() - 1];
+        for each in array {
+            if each > &last {
+                return false;
+            }
+        }
+        true
+    }
+
+    fn is_sorted1(array: &[u32]) -> bool {
+        if array.len() < 2 {
+            return true;
+        }
+        for i in 1..array.len() {
+            if array[i - 1] > array[i] {
+                return false;
+            }
+        }
+        true
+    }
+
     #[cfg(test)]
     mod tests {
+        use crate::sort::*;
+
         #[test]
         fn test_sort_student_struct() {
             struct Student {
@@ -93,6 +117,15 @@ mod sort {
 
             students.sort_by(|a, b| a.grade.cmp(&b.grade));
             assert_eq!(&students[0].id, &2);
+        }
+
+        #[test]
+        fn test_is_sorted() {
+            assert!(is_sorted(&[1, 2, 3]));
+            assert!(!is_sorted(&[1, 2, 3, 2]));
+
+            assert!(is_sorted1(&[1, 2, 3]));
+            assert!(!is_sorted1(&[1, 2, 3, 2]));
         }
     }
 }
@@ -119,7 +152,7 @@ mod sales {
     }
 
     fn median(array: &mut [u32]) -> f32 {
-        array.sort();
+        array.sort_unstable();
         match array.len() % 2_usize {
             0 => {
                 let center = array.len() / 2;
